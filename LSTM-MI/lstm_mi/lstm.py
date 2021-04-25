@@ -18,7 +18,7 @@ from datetime import datetime
 
 # todo set params
 csv_dataset_path = "Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
-out_path = "drive/MyDrive" #drive/MyDrive/Cyber Security
+out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "1"
 max_epoch = 20 #20
 nfolds = 10 #10
