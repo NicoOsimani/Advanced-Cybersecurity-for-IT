@@ -17,16 +17,17 @@ from sklearn.metrics import precision_score, recall_score, classification_report
 from datetime import datetime
 
 # todo set params
-csv_dataset = "traindga5.csv"
+csv_dataset_path = "Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
+out_path = "drive/MyDrive" #drive/MyDrive/Cyber Security
+test_name = "1"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
-test_name = "1"
 
 def get_data(): 
 	"""Read data from file (Traning, testing and validation) to process"""
 	data= []
-	with open(csv_dataset, "r") as f:
+	with open(csv_dataset_path, "r") as f:
 		reader = csv.reader(f)
 		for row in reader:
 			data.append(row) 
@@ -73,7 +74,7 @@ def create_class_weight(labels_dict,mu):
 
 def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold,classification):
     """Generate the report to data processing"""
-    with open('classification_report_' + test_name + '.csv', 'a') as f:
+    with open(out_path + '/LSTM-MI_' + test_name + '.csv', 'a') as f:
         report_data = []
         lines = report.split('\n')
         row = {}
