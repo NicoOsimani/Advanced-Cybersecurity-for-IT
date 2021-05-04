@@ -192,7 +192,28 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         #Serialize weights to HDF5
             best_model.save_weights(name_file2)
         print("Saved two-class model to disk")
+
+        y_pred = best_model.predict_proba(X_test)
+        y_result = [0 if(x<=0.5) else 1 for x in y_pred]
         #End of two-class classification stage
+
+        #Calculate the final result
+        class_names = ["legit", "dga"]
+
+        classification = "binary classification"
+
+        score = f1_score(y_test, y_result, average="macro")
+        precision = precision_score(y_test, y_result, average="macro")
+        recall = recall_score(y_test, y_result, average="macro")
+        report = classification_report(y_test, y_result, target_names=class_names, digits=4)
+        acc = accuracy_score(y_test, y_result)
+        classifaction_report_csv(report,precision,recall,score,acc,fold, classification)
+        print "\nBinary classification results"
+        print '\nClassification report:\n', report
+        print 'F1 score:', score
+        print 'Recall:', recall
+        print 'Precision:', precision
+        print 'Acc:', acc
 
         #Begin multiclass classification stage
         #Build the model for multiclass classification stage
@@ -249,9 +270,9 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
                 y_result[i] = y_result_dga[j]
                 j = j+1
 
+        #Calculate the final result
         classification = "multi-classification"
 
-        #Calculate the final result
         score = f1_score(y_dga_test, y_result,average="macro")
         precision = precision_score(y_dga_test, y_result,average="macro")
         recall = recall_score(y_dga_test, y_result,average="macro")
@@ -263,37 +284,8 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         print 'F1 score:', score
         print 'Recall:', recall
         print 'Precision:', precision
-        print 'Acc:', acc
-
-        for i in range(len(y_dga_test)):
-            if y_dga_test[i] == 20:
-                y_dga_test[i] = 0
-            else:
-                y_dga_test[i] = 1
-
-        for i in range(len(y_result)):
-            if y_result[i] == 20:
-                y_result[i] = 0
-            else:
-                y_result[i] = 1
-
-        class_names = ["legit", "dga"]
-
-        classification = "binary classification"
-
-        score = f1_score(y_dga_test, y_result, average="macro")
-        precision = precision_score(y_dga_test, y_result, average="macro")
-        recall = recall_score(y_dga_test, y_result, average="macro")
-        report = classification_report(y_dga_test, y_result, target_names=class_names, digits=4)
-        acc = accuracy_score(y_dga_test, y_result)
-        classifaction_report_csv(report,precision,recall,score,acc,fold, classification)
-        print "\nBinary classification results"
-        print '\nClassification report:\n', report
-        print 'F1 score:', score
-        print 'Recall:', recall
-        print 'Precision:', precision
-        print 'Acc:', acc
-             
+        print 'Acc:', acc      
+           
    
 if __name__ == "__main__":
     run()
