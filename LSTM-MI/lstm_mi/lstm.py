@@ -17,12 +17,17 @@ from sklearn.metrics import precision_score, recall_score, classification_report
 from datetime import datetime
 
 # todo set params
-csv_dataset_path = "Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
+csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
 out_path = "drive/MyDrive" #drive/MyDrive
-test_name = "1"
+test_name = "dga_domains"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
+
+if csv_dataset_path == "drive/MyDrive/Cyber Security/dga_domains_full.csv":
+    alexa_class = 14
+else:
+    alexa_class = 20
 
 def get_data(): 
 	"""Read data from file (Traning, testing and validation) to process"""
@@ -136,7 +141,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
    
 	# Convert labels to 0-1 for binary class
     y_binary = np.array([0 if x == 'legit' else 1 for x in binary_labels])
-    # Convert labels to 0-37 for multi class
+    # Convert labels to 0-(number of classes - 1) for multi class
     valid_class = {i:indx for indx, i in enumerate(set(labels))}
     y = [valid_class[x] for x in labels]
     y = np.array(y)
@@ -154,7 +159,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         y_dga =[]
         X_dga =[]
         for i in range(len(y_dga_train)):
-        	if y_dga_train[i]!= 20:
+        	if y_dga_train[i]!= alexa_class:
         		y_dga.append(y_dga_train[i])
         		X_dga.append(X_train[i])
         X_dga =np.array(X_dga)
@@ -250,7 +255,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         print("Saved multiclass model to disk")
 
         y_pred = best_model.predict_proba(X_test)
-        y_result = [20 if(x<=0.5) else 0 for x in y_pred]
+        y_result = [alexa_class if(x<=0.5) else 0 for x in y_pred]
         
         X_dga_test =[]
         y_dga_test_labels =[]
@@ -266,7 +271,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
 
         j = 0
         for i in range(len(y_result)):
-            if y_result[i] != 20:
+            if y_result[i] != alexa_class:
                 y_result[i] = y_result_dga[j]
                 j = j+1
 
