@@ -276,12 +276,14 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
                 j = j+1
 
         #Calculate the final result
+        class_names = set(labels)
+
         classification = "multi-classification"
 
         score = f1_score(y_dga_test, y_result,average="macro")
         precision = precision_score(y_dga_test, y_result,average="macro")
         recall = recall_score(y_dga_test, y_result,average="macro")
-        report = classification_report(y_dga_test,y_result,digits=4)
+        report = classification_report(y_dga_test, y_result, target_names=class_names, digits=4)
         acc= accuracy_score(y_dga_test, y_result)
         classifaction_report_csv(report,precision,recall,score,acc,fold, classification)
         print "\nMulti-classification results"
