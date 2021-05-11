@@ -219,7 +219,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         print 'Recall:', recall
         print 'Precision:', precision
         print 'Acc:', acc
-
+'''
         #Begin multiclass classification stage
         #Build the model for multiclass classification stage
         model_dga = build_multiclass_model(max_features, maxlen)
@@ -292,7 +292,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         print 'Recall:', recall
         print 'Precision:', precision
         print 'Acc:', acc      
-           
+'''           
    
 if __name__ == "__main__":
     run()
