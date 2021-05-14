@@ -23,6 +23,7 @@ test_name = "dga_domains"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
+patience = 2
 
 if csv_dataset_path == "drive/MyDrive/Cyber Security/dga_domains_full.csv":
     alexa_class = 14
@@ -119,7 +120,7 @@ def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold,clas
         dataframe = pd.DataFrame.from_dict(report_data)
         dataframe.to_csv(f, index = False)
 
-def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
+def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=patience):
     """Run train/test on logistic regression model"""
 
     #Begin preprocessing stage
@@ -177,16 +178,28 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size):
         labels_dict=collections.Counter(y_train)
         class_weight = create_class_weight(labels_dict,0.1)
         best_auc = 0.0
+        best_loss = -1.0
+        stop_train = 0
         #20
         for ep in range(max_epoch):
-            model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, class_weight=class_weight)
-            t_probs = model.predict_proba(X_holdout)
-            t_result = [0 if(x<=0.5) else 1 for x in t_probs]
-            t_acc = accuracy_score(y_holdout, t_result)
-            #Get the model with highest accuracy
-            if t_acc > best_auc:
-                best_model = model
-                best_auc = t_acc
+            if stop_train < patience:
+                history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, class_weight=class_weight)
+                t_probs = model.predict_proba(X_holdout)
+                t_result = [0 if(x<=0.5) else 1 for x in t_probs]
+                t_acc = accuracy_score(y_holdout, t_result)
+                t_loss = history.history['loss']
+                #Get the model with highest accuracy
+                if t_acc > best_auc:
+                    best_model = model
+                    best_auc = t_acc
+                #Early stopping
+                if best_loss == -1.0:
+                    best_loss = t_loss
+                if t_loss <= best_loss:
+                    best_loss = t_loss
+                    stop_train = 0
+                else:
+                    stop_train += 1
 		#Save the model for two-class classification     
         #Serialize model to JSON
         model_json = best_model.to_json()
