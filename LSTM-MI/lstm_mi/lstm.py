@@ -189,7 +189,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
                 t_probs = model.predict_proba(X_holdout)
                 t_result = [0 if(x<=0.5) else 1 for x in t_probs]
                 t_acc = accuracy_score(y_holdout, t_result)
-                t_loss = history.history['loss']
+                t_loss = history.history['loss'][0]
                 #Get the model with highest accuracy
                 if t_acc > best_auc:
                     best_model = model
