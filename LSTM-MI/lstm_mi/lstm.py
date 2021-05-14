@@ -19,11 +19,12 @@ from datetime import datetime
 # todo set params
 csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
 out_path = "drive/MyDrive" #drive/MyDrive
-test_name = "dga_domains"
+test_name = "dga_domains__fold"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
 patience = 2
+min_delta = 0.0001
 
 if csv_dataset_path == "drive/MyDrive/Cyber Security/dga_domains_full.csv":
     alexa_class = 14
@@ -120,7 +121,7 @@ def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold,clas
         dataframe = pd.DataFrame.from_dict(report_data)
         dataframe.to_csv(f, index = False)
 
-def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=patience):
+def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=patience, min_delta=min_delta):
     """Run train/test on logistic regression model"""
 
     #Begin preprocessing stage
@@ -183,6 +184,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         #20
         for ep in range(max_epoch):
             if stop_train < patience:
+                print "Epoch %u/%u" % (ep+1, max_epoch)
                 history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, class_weight=class_weight)
                 t_probs = model.predict_proba(X_holdout)
                 t_result = [0 if(x<=0.5) else 1 for x in t_probs]
@@ -194,12 +196,13 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
                     best_auc = t_acc
                 #Early stopping
                 if best_loss == -1.0:
-                    best_loss = t_loss
-                if t_loss <= best_loss:
-                    best_loss = t_loss
+                    best_loss = t_loss + min_delta
+                if best_loss - t_loss >= min_delta:    
                     stop_train = 0
                 else:
                     stop_train += 1
+                if t_loss <= best_loss:
+                    best_loss = t_loss
 		#Save the model for two-class classification     
         #Serialize model to JSON
         model_json = best_model.to_json()
