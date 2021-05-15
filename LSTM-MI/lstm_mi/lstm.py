@@ -6,6 +6,7 @@ import csv
 import collections
 import math
 import pandas as pd
+from keras.losses import BinaryCrossentropy
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
@@ -17,14 +18,14 @@ from sklearn.metrics import precision_score, recall_score, classification_report
 from datetime import datetime
 
 # todo set params
-csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
+csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_sample.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
 out_path = "drive/MyDrive" #drive/MyDrive
-test_name = "dga_domains__fold"
+test_name = "dga_domains_prova_fold"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
-patience = 2
-min_delta = 0.0001
+patience = 5
+min_delta = 0.0
 
 if csv_dataset_path == "drive/MyDrive/Cyber Security/dga_domains_full.csv":
     alexa_class = 14
@@ -49,7 +50,7 @@ def build_binary_model(max_features, maxlen):
     model.add(Dense(1))
     model.add(Activation('sigmoid'))
 
-    model.compile(loss='binary_crossentropy',optimizer='rmsprop')
+    model.compile(loss='binary_crossentropy',optimizer='rmsprop', metrics=['accuracy'])
 
     return model
 
@@ -171,38 +172,32 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         model = build_binary_model(max_features, maxlen)
         
         print "Training the model for two-class classification stage..."
-        sss1 = StratifiedShuffleSplit(n_splits=1, test_size=0.05, random_state=0)
-        for train, test in sss1.split(X_train, y_train):
-            X_train, X_holdout, y_train, y_holdout = X_train[train], X_train[test], y_train[train], y_train[test]
+        #sss1 = StratifiedShuffleSplit(n_splits=1, test_size=0.05, random_state=0)
+        #for train, test in sss1.split(X_train, y_train):
+            #X_train, X_holdout, y_train, y_holdout = X_train[train], X_train[test], y_train[train], y_train[test]
         
         #Create weight for two-class classification stage
         labels_dict=collections.Counter(y_train)
         class_weight = create_class_weight(labels_dict,0.1)
         best_auc = 0.0
-        best_loss = -1.0
         stop_train = 0
         #20
         for ep in range(max_epoch):
             if stop_train < patience:
                 print "Epoch %u/%u" % (ep+1, max_epoch)
-                history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, class_weight=class_weight)
-                t_probs = model.predict_proba(X_holdout)
-                t_result = [0 if(x<=0.5) else 1 for x in t_probs]
-                t_acc = accuracy_score(y_holdout, t_result)
+                history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, validation_split=0.05, class_weight=class_weight)
                 t_loss = history.history['loss'][0]
+                t_acc = history.history['accuracy'][0]
+                v_loss = history.history['val_loss'][0]
+                v_acc = history.history['val_accuracy'][0]
                 #Get the model with highest accuracy
-                if t_acc > best_auc:
-                    best_model = model
-                    best_auc = t_acc
-                #Early stopping
-                if best_loss == -1.0:
-                    best_loss = t_loss + min_delta
-                if best_loss - t_loss >= min_delta:    
+                if v_acc >= best_auc + min_delta:
                     stop_train = 0
                 else:
-                    stop_train += 1
-                if t_loss <= best_loss:
-                    best_loss = t_loss
+                    stop_train += 1    
+                if v_acc > best_auc:
+                    best_model = model
+                    best_auc = v_acc
 		#Save the model for two-class classification     
         #Serialize model to JSON
         model_json = best_model.to_json()
