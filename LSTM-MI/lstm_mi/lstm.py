@@ -6,7 +6,7 @@ import csv
 import collections
 import math
 import pandas as pd
-from keras.losses import BinaryCrossentropy
+import matplotlib.pyplot as plt
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
@@ -18,9 +18,9 @@ from sklearn.metrics import precision_score, recall_score, classification_report
 from datetime import datetime
 
 # todo set params
-csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_sample.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
+csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
 out_path = "drive/MyDrive" #drive/MyDrive
-test_name = "dga_domains_prova_fold"
+test_name = "dga_domains__fold"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
@@ -180,6 +180,10 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         labels_dict=collections.Counter(y_train)
         class_weight = create_class_weight(labels_dict,0.1)
         best_auc = 0.0
+        acc_val = []
+        acc_train = []
+        loss_val = []
+        loss_train = []
         stop_train = 0
         #20
         for ep in range(max_epoch):
@@ -198,6 +202,11 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
                 if v_acc > best_auc:
                     best_model = model
                     best_auc = v_acc
+                #Getting all data
+                acc_val.append(v_acc)
+                acc_train.append(t_acc)
+                loss_val.append(v_loss)
+                loss_train.append(t_loss)
 		#Save the model for two-class classification     
         #Serialize model to JSON
         model_json = best_model.to_json()
@@ -208,6 +217,32 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         #Serialize weights to HDF5
             best_model.save_weights(name_file2)
         print("Saved two-class model to disk")
+
+        fig1 = plt.figure(1)
+        plt.title('Loss')
+        plt.plot(loss_val, 'r', label='Validation Loss')
+        plt.plot(loss_train, 'b', label='Training Loss')
+        plt.legend(loc="upper right")
+        x = list(range(0, len(loss_train)+1, 1))
+        plt.xlim(right=len(acc_train))
+        plt.xticks(x)
+        plt.grid(True)
+        fig1.savefig(out_path + "/LSTM-MI_" + test_name + "_loss_fold_" + str(fold) + ".png")
+        plt.show()
+        plt.close(fig1)
+
+        fig2 = plt.figure(2)
+        plt.title('Accuracy')
+        plt.plot(acc_val, 'r', label='Validation Accuracy')
+        plt.plot(acc_train, 'b', label='Training Accuracy')
+        plt.legend(loc="lower right")
+        x = list(range(0, len(acc_train)+1, 1))
+        plt.xlim(right=len(acc_train))
+        plt.xticks(x)
+        plt.grid(True)
+        fig2.savefig(out_path + "/LSTM-MI_" + test_name + "_accuracy_fold_" + str(fold) + ".png")
+        plt.show()
+        plt.close(fig2)
 
         y_pred = best_model.predict_proba(X_test)
         y_result = [0 if(x<=0.5) else 1 for x in y_pred]
