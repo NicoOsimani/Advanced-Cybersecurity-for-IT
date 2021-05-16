@@ -20,7 +20,7 @@ from datetime import datetime
 # todo set params
 csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #Advanced-Cybersecurity-for-IT/LSTM-MI/lstm_mi/traindga5.csv  drive/MyDrive/Cyber Security/dga_domains_full.csv
 out_path = "drive/MyDrive" #drive/MyDrive
-test_name = "dga_domains__fold"
+test_name = "dga_domains"
 max_epoch = 20 #20
 nfolds = 10 #10
 batch_size = 128 #128
@@ -82,7 +82,7 @@ def create_class_weight(labels_dict,mu):
 
 def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold,classification):
     """Generate the report to data processing"""
-    with open(out_path + '/LSTM-MI_' + test_name + '.csv', 'a') as f:
+    with open(out_path + '/LSTM-MI_' + test_name + '_results.csv', 'a') as f:
         report_data = []
         lines = report.split('\n')
         row = {}
@@ -172,9 +172,9 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         model = build_binary_model(max_features, maxlen)
         
         print "Training the model for two-class classification stage..."
-        #sss1 = StratifiedShuffleSplit(n_splits=1, test_size=0.05, random_state=0)
-        #for train, test in sss1.split(X_train, y_train):
-            #X_train, X_holdout, y_train, y_holdout = X_train[train], X_train[test], y_train[train], y_train[test]
+        sss1 = StratifiedShuffleSplit(n_splits=1, test_size=0.05, random_state=0)
+        for train, test in sss1.split(X_train, y_train):
+            X_train, X_holdout, y_train, y_holdout = X_train[train], X_train[test], y_train[train], y_train[test]
         
         #Create weight for two-class classification stage
         labels_dict=collections.Counter(y_train)
@@ -189,7 +189,7 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
         for ep in range(max_epoch):
             if stop_train < patience:
                 print "Epoch %u/%u" % (ep+1, max_epoch)
-                history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, validation_split=0.05, class_weight=class_weight)
+                history = model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=1, validation_data=(X_holdout, y_holdout), class_weight=class_weight)
                 t_loss = history.history['loss'][0]
                 t_acc = history.history['accuracy'][0]
                 v_loss = history.history['val_loss'][0]
@@ -210,8 +210,8 @@ def run(max_epoch=max_epoch, nfolds=nfolds, batch_size=batch_size, patience=pati
 		#Save the model for two-class classification     
         #Serialize model to JSON
         model_json = best_model.to_json()
-        name_file = "model_binary.json"
-        name_file2 = "model_binary.h5"
+        name_file = out_path + "/LSTM-MI_" + test_name + "_model_fold_" + str(fold) + ".json"
+        name_file2 = out_path + "/LSTM-MI_" + test_name + "_model_fold_" + str(fold) + ".h5"
         with open(name_file, "w") as json_file:
             json_file.write(model_json)
         #Serialize weights to HDF5
