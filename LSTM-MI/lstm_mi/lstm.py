@@ -132,7 +132,7 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         print "Fold %u/%u" % (fold, end_fold) 
 
         #Build the model for two-class classification stage
-        model = build_binary_model(40, 73) #40, 73
+        model = build_binary_model(40, 73) #max features, max len
         
         print "Training the model for two-class classification stage..."
         sss1 = StratifiedShuffleSplit(n_splits=1, test_size=0.05, random_state=0)

@@ -53,14 +53,18 @@ def preprocess(X, binary_labels, labels):
     valid_class = {i: indx for indx, i in enumerate(set(labels))}
     y = [valid_class[x] for x in labels]
     y = np.array(y)
-    return X, y_binary, y
+    return X, y_binary, y, max_features, maxlen
 
 def main(nfolds=nfolds):
     # Read data to process
     X, binary_labels, labels = get_data()
+    print("Reading data...")
 
     # Preprocessing stage
-    X, y_binary, y = preprocess(X, binary_labels, labels)
+    X, y_binary, y, max_features, maxlen = preprocess(X, binary_labels, labels)
+    print("Preprocessing...")
+    print("Max features: " + str(max_features))
+    print("Max len: " + str(maxlen))
 
     # Divide the dataset into training + holdout and testing with folds
     #sss = StratifiedKFold(n_splits=nfolds, random_state=0)
