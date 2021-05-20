@@ -5,6 +5,7 @@ import random
 import csv
 import collections
 import math
+import itertools
 import pandas as pd
 import matplotlib.pyplot as plt
 from keras.preprocessing import sequence
@@ -14,8 +15,9 @@ from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
 from sklearn.cross_validation import train_test_split
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.metrics import precision_score, recall_score, classification_report,accuracy_score, f1_score
+from sklearn.metrics import precision_score, recall_score, classification_report,accuracy_score, f1_score, confusion_matrix
 from datetime import datetime
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # todo set params
 folder_dataset_path = "drive/MyDrive" #drive/MyDrive
@@ -58,6 +60,41 @@ def get_data(fold):
 	y_test = np.array(y_test)
 	return X_train, X_test, y_train, y_test
 
+def plot_confusion_matrix(cm, classes, fold, 
+                          normalize=True,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    fig = plt.figure(figsize=(4, 4), dpi=80)
+    im = plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("\nNormalized confusion matrix:")
+    else:
+        print('\nConfusion matrix, without normalization:')
+    print(cm)
+    print("")
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, round(cm[i, j],2),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    ax = plt.gca()
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(im, cax=cax)
+    fig.savefig(out_path + "/LSTM-MI_" + test_name + "_cm_fold_" + str(fold) + ".png")
+    plt.show()
+    plt.close()
+    print("")
+    return cm
+
 def build_binary_model(max_features, maxlen):
     """Build LSTM model for two-class classification"""
     model = Sequential()
@@ -83,7 +120,7 @@ def create_class_weight(labels_dict,mu):
 
     return class_weight
 
-def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold):
+def classifaction_report_csv(report,precision,recall,f1_score,accuracy,cm,fold):
     """Generate the report to data processing"""
     with open(out_path + '/LSTM-MI_' + test_name + '_results.csv', 'a') as f:
         report_data = []
@@ -120,6 +157,21 @@ def classifaction_report_csv(report,precision,recall,f1_score,accuracy,fold):
         row = {}
         row['class'] = 'accuracy'
         row['f1_score'] = float(accuracy)
+        report_data.append(row)
+        row = {}
+        row['class'] = 'confusion matrix'
+        row['precision'] = 'dga'
+        row['f1_score'] = 'legit'
+        report_data.append(row)
+        row = {}
+        row['class'] = 'legit'
+        row['precision'] = float(cm[0][1])
+        row['f1_score'] = float(cm[0][0])
+        report_data.append(row)
+        row = {}
+        row['class'] = 'dga'
+        row['precision'] = float(cm[1][1])
+        row['f1_score'] = float(cm[1][0])
         report_data.append(row)
         dataframe = pd.DataFrame.from_dict(report_data)
         dataframe.to_csv(f, index = False)
@@ -179,7 +231,7 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
             json_file.write(model_json)
         #Serialize weights to HDF5
             best_model.save_weights(name_file2)
-        print("Saved two-class model to disk")
+        print("Saved two-class model to disk\n")
 
         fig1 = plt.figure(1)
         plt.title('Loss')
@@ -219,15 +271,15 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         recall = recall_score(y_test, y_result, average="macro")
         report = classification_report(y_test, y_result, target_names=class_names, digits=4)
         acc = accuracy_score(y_test, y_result)
-        classifaction_report_csv(report,precision,recall,score,acc,fold)
-        print "\nBinary classification results"
         print '\nClassification report:\n', report
         print 'F1 score:', score
         print 'Recall:', recall
         print 'Precision:', precision
         print 'Acc:', acc
+        cm = confusion_matrix(y_test, y_result)
+        cm = plot_confusion_matrix(cm, class_names, fold)
+        classifaction_report_csv(report,precision,recall,score,acc, cm, fold)
         
    
 if __name__ == "__main__":
     run()
-
