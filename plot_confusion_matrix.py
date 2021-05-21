@@ -7,12 +7,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 out_path = "/home/nico/Desktop/Sicurezza_2/Progetto"
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
-cm = np.array([[0.0, 0.0], [0.0, 0.0]])
+cm = np.array([[1.0, 0.0], [0.2, 0.8]])
 
 def plot_confusion_matrix(cm, classes,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
-    fig = plt.figure(figsize=(4, 4), dpi=80)
+    fig = plt.figure(figsize=(4, 3), dpi=80)
     im = plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     tick_marks = np.arange(len(classes))

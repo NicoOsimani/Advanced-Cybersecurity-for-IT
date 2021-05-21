@@ -64,7 +64,7 @@ def plot_confusion_matrix(cm, classes, fold,
                           normalize=True,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
-    fig = plt.figure(figsize=(4, 4), dpi=80)
+    fig = plt.figure(figsize=(4, 3), dpi=80)
     im = plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     tick_marks = np.arange(len(classes))
