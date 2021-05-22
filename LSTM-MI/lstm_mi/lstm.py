@@ -60,41 +60,6 @@ def get_data(fold):
 	y_test = np.array(y_test)
 	return X_train, X_test, y_train, y_test
 
-def plot_confusion_matrix(cm, classes, fold, 
-                          normalize=True,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-    fig = plt.figure(figsize=(4, 3), dpi=80)
-    im = plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("\nNormalized confusion matrix:")
-    else:
-        print('\nConfusion matrix, without normalization:')
-    print(cm)
-    print("")
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, round(cm[i, j],2),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-    ax = plt.gca()
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(im, cax=cax)
-    fig.savefig(out_path + "/LSTM-MI_" + test_name + "_cm_fold_" + str(fold) + ".png")
-    plt.show()
-    plt.close()
-    print("")
-    return cm
-
 def build_binary_model(max_features, maxlen):
     """Build LSTM model for two-class classification"""
     model = Sequential()
@@ -277,7 +242,9 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         print 'Precision:', precision
         print 'Acc:', acc
         cm = confusion_matrix(y_test, y_result)
-        cm = plot_confusion_matrix(cm, class_names, fold)
+        print("Confusion matrix:")
+        print cm
+        print("")
         classifaction_report_csv(report,precision,recall,score,acc, cm, fold)
         
    
