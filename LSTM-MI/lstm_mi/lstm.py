@@ -28,7 +28,7 @@ out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "dga_domains"
 max_epoch = 20 #20
 batch_size = 128 #128
-patience = 5
+patience = 20
 min_delta = 0.0
 
 
@@ -130,13 +130,13 @@ def classifaction_report_csv(report,precision,recall,f1_score,accuracy,cm,fold):
         report_data.append(row)
         row = {}
         row['class'] = 'legit'
-        row['precision'] = float(cm[0][1])
-        row['f1_score'] = float(cm[0][0])
+        row['precision'] = int(cm[0][1])
+        row['f1_score'] = int(cm[0][0])
         report_data.append(row)
         row = {}
         row['class'] = 'dga'
-        row['precision'] = float(cm[1][1])
-        row['f1_score'] = float(cm[1][0])
+        row['precision'] = int(cm[1][1])
+        row['f1_score'] = int(cm[1][0])
         report_data.append(row)
         dataframe = pd.DataFrame.from_dict(report_data)
         dataframe.to_csv(f, index = False)
@@ -242,7 +242,7 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         print 'Precision:', precision
         print 'Acc:', acc
         cm = confusion_matrix(y_test, y_result)
-        print("Confusion matrix:")
+        print("\nConfusion matrix:")
         print cm
         print("")
         classifaction_report_csv(report,precision,recall,score,acc, cm, fold)

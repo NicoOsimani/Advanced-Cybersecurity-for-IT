@@ -7,7 +7,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 out_path = "/home/nico/Desktop/Sicurezza_2/Progetto"
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
-title="N-grams"
+title="LSTM-MI"
 normalize = True
 cm = np.array([[121278, 25548], [13681, 109411]])
 
