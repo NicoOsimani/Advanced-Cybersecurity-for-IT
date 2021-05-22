@@ -1,11 +1,11 @@
 import csv
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedKFold
 from keras.preprocessing import sequence
 
 # todo set params
-csv_dataset_path = "/home/nico/Desktop/Sicurezza_2/Progetto/Repositories_originali/DGA_domains_dataset/dga_domains_full.csv"
-out_path = "/home/nico/Desktop/Sicurezza_2/Progetto"
+csv_dataset_path = "drive/MyDrive/Cyber Security/dga_domains_full.csv" #drive/MyDrive/Cyber Security/dga_domains_full.csv
+out_path = "drive/MyDrive" #drive/MyDrive
 nfolds=10
 
 def get_data():
@@ -67,8 +67,7 @@ def main(nfolds=nfolds):
     print("Max len: " + str(maxlen))
 
     # Divide the dataset into training + holdout and testing with folds
-    #sss = StratifiedKFold(n_splits=nfolds, random_state=0)
-    sss = StratifiedShuffleSplit(n_splits=nfolds, test_size=0.2, random_state=0)
+    sss = StratifiedKFold(n_splits=nfolds, random_state=0)
 
     fold = 0
     for train, test in sss.split(X, y_binary, y):

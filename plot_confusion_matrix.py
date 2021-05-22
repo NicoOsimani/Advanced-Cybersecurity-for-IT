@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # todo set params
-out_path = "/home/nico/Desktop/Sicurezza_2/Progetto"
+out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
 title="LSTM-MI"
