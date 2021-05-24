@@ -1,4 +1,6 @@
 __author__ = 'Daniele Marzetti'
+
+import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, GlobalMaxPool1D, concatenate, Dropout, Dense, Embedding, LSTM, Input
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras import Model
@@ -125,7 +127,6 @@ def train_eval_test(model, dataset, label):
 
 
 def use_tpu():
-    import tensorflow as tf
     print("Tensorflow version " + tf.__version__)
 
     try:
@@ -136,4 +137,4 @@ def use_tpu():
 
     tf.config.experimental_connect_to_cluster(tpu)
     tf.tpu.experimental.initialize_tpu_system(tpu)
-    tpu_strategy = tf.distribute.experimental.TPUStrategy(tpu)
+    tpu_strategy = tf.distribute.TPUStrategy(tpu)

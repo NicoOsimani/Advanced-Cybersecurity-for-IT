@@ -42,4 +42,4 @@ def to_numeric(dataset, MAX_STRING_LENGTH):
 
   dataset_preprocess = dataset.apply(conversion, mapping = charachetrs_map)
   dataset_final = pad_sequences(dataset_preprocess.to_numpy(), maxlen=MAX_STRING_LENGTH, padding="pre", value=0)
-  return  dataset_final, MAX_INDEX
+  return  dataset_final, MAX_INDEX + 1
