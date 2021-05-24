@@ -14,11 +14,11 @@ def create_set_label():
   return dataset, label, dataset.map(len).max()
 
 
-def funz(x, charachetrs_map):
-  a = []
+def conversion(x, mapping):
+  converted = []
   for y in list(x):
-    a.append(charachetrs_map.get(y))
-  return(a)
+    converted.append(mapping.get(y))
+  return converted
 
 def to_numeric(dataset, MAX_STRING_LENGTH):
   valid_characters = set()
@@ -35,11 +35,11 @@ def to_numeric(dataset, MAX_STRING_LENGTH):
 
   MAX_INDEX = max((filter(None.__ne__,list(charachetrs_map.values()))))
 
-  for i in charachetrs_map.keys():
+  for i in sorted(charachetrs_map.keys()):
     if charachetrs_map[i]==None:
       MAX_INDEX+=1
       charachetrs_map[i]=MAX_INDEX
 
-  dataset_preprocess = dataset.apply(funz, args=(charachetrs_map,))
+  dataset_preprocess = dataset.apply(conversion, mapping = charachetrs_map)
   dataset_final = pad_sequences(dataset_preprocess.to_numpy(), maxlen=MAX_STRING_LENGTH, padding="pre", value=0)
-  return  dataset_final
+  return  dataset_final, MAX_INDEX

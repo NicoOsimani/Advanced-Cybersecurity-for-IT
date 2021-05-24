@@ -9,17 +9,13 @@ import matplotlib as plt
 
 max_epoch = 10
 batch_size = 512
-MAX_INDEX = 40  # Max number of valid characters in a domain (fino a 41)
-MAX_STRING_LENGTH = 73
 EMBEDDING_DIMENSION = 128
 NUM_CONV_FILTERS = 60
 max_features = 38         #?
 
-def create_model():
-    input_shape = MAX_STRING_LENGTH
-    
+def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     net = {}
-    net['input'] = Input((input_shape, ), dtype='int32', name='input')
+    net['input'] = Input((MAX_STRING_LENGTH, ), dtype='int32', name='input')
     
     ########################
     #          CNN         #
@@ -97,12 +93,10 @@ def create_model():
 def train_eval_test(model, dataset, label):
     earlystop = EarlyStopping(monitor='loss', patience=3)
     best_save = ModelCheckpoint('bestmodel.hdf5', save_best_only=True, save_weights_only= False, monitor='val_loss', mode='min')
-    
     model.compile(optimizer='ADAM', loss= BinaryCrossentropy(), metrics=[BinaryAccuracy(), AUC(), Precision(), Recall()])
     model.summary()
     history = model.fit(x=dataset, y=label.to_numpy(), batch_size=batch_size, epochs=max_epoch, callbacks=[earlystop, best_save], validation_split=0.2)
-    
-    
+
     fig1 = plt.figure(1)
     plt.title('Loss')
     plt.plot(history.history["val_loss"], 'r', label='Validation Loss')
