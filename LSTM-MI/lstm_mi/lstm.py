@@ -197,15 +197,19 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         #Serialize weights to HDF5
             best_model.save_weights(name_file2)
         print("Saved two-class model to disk\n")
+        
+        x_epochs = []
+        for i in range(0,len(acc_train)):
+        	x_epochs.append(i+1)	
 
         fig1 = plt.figure(1)
         plt.title('Loss')
         plt.plot(loss_val, 'r', label='Validation Loss')
         plt.plot(loss_train, 'b', label='Training Loss')
         plt.legend(loc="upper right")
-        x = list(range(0, len(loss_train)+1, 1))
-        plt.xlim(right=len(acc_train))
-        plt.xticks(x)
+        x = list(range(0, len(loss_train), 1))
+        plt.xlim(right=len(loss_train))
+        plt.xticks(x, x_epochs)
         plt.grid(True)
         fig1.savefig(out_path + "/LSTM-MI_" + test_name + "_loss_fold_" + str(fold) + ".png")
         plt.show()
@@ -216,9 +220,9 @@ def run(max_epoch=max_epoch, start_fold=start_fold, end_fold=end_fold, batch_siz
         plt.plot(acc_val, 'r', label='Validation Accuracy')
         plt.plot(acc_train, 'b', label='Training Accuracy')
         plt.legend(loc="lower right")
-        x = list(range(0, len(acc_train)+1, 1))
+        x = list(range(0, len(acc_train), 1))
         plt.xlim(right=len(acc_train))
-        plt.xticks(x)
+        plt.xticks(x, x_epochs)
         plt.grid(True)
         fig2.savefig(out_path + "/LSTM-MI_" + test_name + "_accuracy_fold_" + str(fold) + ".png")
         plt.show()
