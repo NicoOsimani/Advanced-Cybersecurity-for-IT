@@ -120,7 +120,7 @@ def train_eval_test(model, start_fold, end_fold):
         plt.legend(loc="upper right")
         #x = list(range(len(loss_train)+1, 1))
         plt.grid(True)
-        fig1.savefig(out_path + "bilbo_loss" + str(fold) + ".png")
+        fig1.savefig(out_path + "loss" + str(fold) + ".png")
         plt.show()
         plt.close(fig1)
 
@@ -130,7 +130,7 @@ def train_eval_test(model, start_fold, end_fold):
         plt.plot(history.history["binary_accuracy"], 'b', label='Training Accuracy')
         plt.legend(loc="lower right")
         plt.grid(True)
-        fig2.savefig(out_path + "bilbo_accuracy" + str(fold) + ".png")
+        fig2.savefig(out_path + "accuracy" + str(fold) + ".png")
         plt.show()
         plt.close(fig2)
 
@@ -138,19 +138,19 @@ def train_eval_test(model, start_fold, end_fold):
         metrics = best_model.evaluate(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
         metrics["f1"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
         try:
-            df = pd.read_csv(out_path + "metrics.csv")
-            df.append(pd.Series(metrics, name=str(fold)))
+            df = pd.read_csv(out_path + "metrics.csv", index_col=[0])
+            df = df.append(pd.Series(metrics, name=str(fold)))
             df.to_csv(out_path + "metrics.csv")
         except:
-            pd.DataFrame(metrics).to_csv(out_path + "metrics.csv")
+            pd.DataFrame(metrics, index=[str(fold)]).to_csv(out_path + "metrics.csv")
         predicted = np.round(best_model.predict(x=x_test, batch_size=batch_size), decimals=0)
         metrics1 = classification_report(y_test, predicted, output_dict=True, target_names=['alexa', 'dga'])
         try:
-            df1 = pd.read_csv(out_path + "metrics1.csv")
-            df1.append(pd.Series(metrics1, name=str(fold)))
+            df1 = pd.read_csv(out_path + "metrics1.csv", index_col=[0])
+            df1 = df1.append(pd.Series(metrics1, name=str(fold)))
             df1.to_csv(out_path + "metrics1.csv")
         except:
-            pd.DataFrame(metrics1).to_csv(out_path + "metrics1.csv")
+            pd.DataFrame(metrics1, index=[str(fold)]).to_csv(out_path + "metrics1.csv")
         np.savetxt(out_path + 'confusion_matrix' + str(fold) + '.csv', confusion_matrix(y_test, predicted), delimiter=',',  fmt='%i')
         print(accuracy_score(y_test, predicted))
 
