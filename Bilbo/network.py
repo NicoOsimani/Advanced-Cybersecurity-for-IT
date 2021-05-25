@@ -143,7 +143,7 @@ def train_eval_test(model, start_fold, end_fold):
             df.to_csv(out_path + "metrics.csv")
         except:
             pd.Series(metrics, index=metrics.keys(), name= str(fold)).to_csv(out_path + "metrics.csv")
-        predicted = best_model.predict(x=x_test, batch_size=batch_size)
+        predicted = np.round(best_model.predict(x=x_test, batch_size=batch_size), decimals=0)
         metrics1 = classification_report(y_test, predicted, output_dict=True, target_names=['alexa', 'dga'])
         pd.Series(metrics1, index=metrics1.keys(), name= str(fold)).to_csv(out_path + "metrics1.csv")
         np.savetxt(out_path + 'confusion_matrix' + str(fold) + '.csv', confusion_matrix(y_test, predicted), delimiter=',',  fmt='%i')
