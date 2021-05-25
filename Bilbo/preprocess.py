@@ -4,11 +4,11 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 
-path = "/content/drive/MyDrive/Cyber Security"
+path = "/content/drive/MyDrive/Cyber Security/"
 nfolds = 10
 
 def create_set_label():
-  dataset = pd.read_csv(path + "/dga_domains_full.csv", encoding= "utf-8", names=['label', 'family', 'domain'])
+  dataset = pd.read_csv(path + "dga_domains_full.csv", encoding= "utf-8", names=['label', 'family', 'domain'])
   y = pd.Series(dataset['label'] == 'dga', dtype=int)
   x = pd.Series(dataset['domain'])
   x.to_csv(path + "x.csv", header=False, index=False)
@@ -48,15 +48,15 @@ def to_numeric(dataset, MAX_STRING_LENGTH):
 
 def kfold(x,y):
   # Divide the dataset into training + holdout and testing with folds
-  sss = StratifiedKFold(n_splits=nfolds, random_state=0)
+  sss = StratifiedKFold(n_splits=nfolds)
 
   fold = 0
   for train, test in sss.split(x, y):
     print("Writing fold " + str(fold + 1) + " to csv...")
     fold += 1
     x_train, x_test, y_train, y_test = x[train], x[test], y[train], y[test]
-    np.savetxt(path +"/x_train" + str(fold), x_train)
-    np.savetxt(path + "/x_test" + str(fold), x_test)
-    np.savetxt(path + "/y_train" + str(fold), y_train)
-    np.savetxt(path + "/y_test" + str(fold), y_test)
+    np.savetxt(path +"x_train" + str(fold) + ".csv", x_train)
+    np.savetxt(path + "x_test" + str(fold) + ".csv", x_test)
+    np.savetxt(path + "y_train" + str(fold) + ".csv", y_train)
+    np.savetxt(path + "y_test" + str(fold) + ".csv", y_test)
   print("Files created")

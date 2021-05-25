@@ -15,7 +15,7 @@ EMBEDDING_DIMENSION = 128
 NUM_CONV_FILTERS = 60
 max_features = 38         #?
 
-path = "/content/drive/MyDrive/Cyber Security/Bilbo"
+path = "/content/drive/MyDrive/Cyber Security/Bilbo/"
 
 def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     net = {}
@@ -108,7 +108,7 @@ def train_eval_test(model, dataset, label):
     plt.legend(loc="upper right")
     #x = list(range(len(loss_train)+1, 1))
     plt.grid(True)
-    fig1.savefig(path + "/bilbo_loss.png")
+    fig1.savefig(path + "bilbo_loss.png")
     plt.show()
     plt.close(fig1)
     
@@ -118,7 +118,7 @@ def train_eval_test(model, dataset, label):
     plt.plot(history.history["binary_accuracy"], 'b', label='Training Accuracy')
     plt.legend(loc="lower right")
     plt.grid(True)
-    fig2.savefig(path + "/bilbo_accuracy.png")
+    fig2.savefig(path + "bilbo_accuracy.png")
     plt.show()
     plt.close(fig2)
     
