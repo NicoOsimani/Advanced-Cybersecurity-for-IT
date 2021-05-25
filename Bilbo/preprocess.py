@@ -55,8 +55,8 @@ def kfold(x,y):
     print("Writing fold " + str(fold + 1) + " to csv...")
     fold += 1
     x_train, x_test, y_train, y_test = x[train], x[test], y[train], y[test]
-    np.savetxt(path +"x_train" + str(fold) + ".csv", x_train)
-    np.savetxt(path + "x_test" + str(fold) + ".csv", x_test)
-    np.savetxt(path + "y_train" + str(fold) + ".csv", y_train)
-    np.savetxt(path + "y_test" + str(fold) + ".csv", y_test)
+    np.savetxt(path +"x_train" + str(fold) + ".csv", x_train, fmt='%i')
+    np.savetxt(path + "x_test" + str(fold) + ".csv", x_test, fmt='%i')
+    np.savetxt(path + "y_train" + str(fold) + ".csv", y_train, fmt='%i')
+    np.savetxt(path + "y_test" + str(fold) + ".csv", y_test, fmt='%i')
   print("Files created")
