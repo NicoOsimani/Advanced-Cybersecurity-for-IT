@@ -18,6 +18,7 @@ NUM_CONV_FILTERS = 60
 max_features = 38         #?
 
 path = "/content/drive/MyDrive/Cyber Security/"
+out_path = "/content/drive/MyDrive/Cyber Security/Bilbo/"
 
 def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     net = {}
@@ -118,7 +119,7 @@ def train_eval_test(model, start_fold, end_fold):
         plt.legend(loc="upper right")
         #x = list(range(len(loss_train)+1, 1))
         plt.grid(True)
-        fig1.savefig(path + "bilbo_loss" + str(fold) + ".png")
+        fig1.savefig(out_path + "bilbo_loss" + str(fold) + ".png")
         plt.show()
         plt.close(fig1)
 
@@ -128,7 +129,7 @@ def train_eval_test(model, start_fold, end_fold):
         plt.plot(history.history["binary_accuracy"], 'b', label='Training Accuracy')
         plt.legend(loc="lower right")
         plt.grid(True)
-        fig2.savefig(path + "bilbo_accuracy" + str(fold) + ".png")
+        fig2.savefig(out_path + "bilbo_accuracy" + str(fold) + ".png")
         plt.show()
         plt.close(fig2)
 
