@@ -136,7 +136,7 @@ def train_eval_test(model, start_fold, end_fold):
 
         best_model = load_model('bestmodel.hdf5')
         metrics = best_model.evaluate(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
-        metrics["f1"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
+        metrics["f1-score"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
         try:
             df = pd.read_csv(out_path + "metrics.csv", index_col=[0])
             df = df.append(pd.Series(metrics, name=str(fold)))
@@ -147,10 +147,10 @@ def train_eval_test(model, start_fold, end_fold):
         metrics1 = classification_report(y_test, predicted, output_dict=True, target_names=['alexa', 'dga'])
         try:
             df1 = pd.read_csv(out_path + "metrics1.csv", index_col=[0])
-            df1 = df1.append(pd.Series(metrics1, name=str(fold)))
+            df1 = df1.append(pd.DataFrame(metrics1))
             df1.to_csv(out_path + "metrics1.csv")
         except:
-            pd.DataFrame(metrics1, index=[str(fold)]).to_csv(out_path + "metrics1.csv")
+            pd.DataFrame(metrics1).to_csv(out_path + "metrics1.csv")
         np.savetxt(out_path + 'confusion_matrix' + str(fold) + '.csv', confusion_matrix(y_test, predicted), delimiter=',',  fmt='%i')
         print(accuracy_score(y_test, predicted))
 
