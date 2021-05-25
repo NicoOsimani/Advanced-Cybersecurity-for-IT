@@ -17,7 +17,7 @@ EMBEDDING_DIMENSION = 128
 NUM_CONV_FILTERS = 60
 max_features = 38         #?
 
-path = "/content/drive/MyDrive/Cyber Security/Bilbo/"
+path = "/content/drive/MyDrive/Cyber Security/"
 
 def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     net = {}
@@ -96,7 +96,7 @@ def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     model = Model(net['input'], net['output'])
     return model
 
-def train_eval_test(model, dataset, label, start_fold, end_fold):
+def train_eval_test(model, start_fold, end_fold):
     earlystop = EarlyStopping(monitor='loss', patience=3)
     best_save = ModelCheckpoint('bestmodel.hdf5', save_best_only=True, save_weights_only= False, monitor='val_loss', mode='min')
     model.compile(optimizer='ADAM', loss= BinaryCrossentropy(), metrics=[BinaryAccuracy(), AUC(), Precision(), Recall()])
@@ -133,7 +133,7 @@ def train_eval_test(model, dataset, label, start_fold, end_fold):
         plt.close(fig2)
 
         best_model = load_model('bestmodel.hdf5')
-        metrics = best_model.evaluete(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
+        metrics = best_model.evaluate(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
         metrics["f1"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
         pd.Series(metrics, index=metrics.keys(), name= str(fold)).to_csv(path + "metrics.csv", mode='a')
         predicted = best_model.predict(x=x_test, batch_size=batch_size)
