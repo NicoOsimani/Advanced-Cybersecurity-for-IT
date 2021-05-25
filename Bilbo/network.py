@@ -10,6 +10,7 @@ from tensorflow.keras.metrics import BinaryAccuracy, AUC, Precision, Recall
 from tensorflow.keras.models import load_model
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 max_epoch = 10
 batch_size = 512
@@ -23,77 +24,77 @@ out_path = "/content/drive/MyDrive/Cyber Security/Bilbo/"
 def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     net = {}
     net['input'] = Input((MAX_STRING_LENGTH, ), dtype='int32', name='input')
-    
+
     ########################
     #          CNN         #
     ########################
-    
+
     net['embeddingCNN'] = Embedding(output_dim=EMBEDDING_DIMENSION,
                                     input_dim=MAX_INDEX,
                                     input_length=MAX_STRING_LENGTH,
                                     name='embeddingCNN')(net['input'])
-    
+
     # Parallel Convolutional Layer
-    
+
     net['conv2'] = Conv1D(NUM_CONV_FILTERS, 2, name='conv2')(net['embeddingCNN'])
-    
+
     net['conv3'] = Conv1D(NUM_CONV_FILTERS, 3, name='conv3')(net['embeddingCNN'])
-    
+
     net['conv4'] = Conv1D(NUM_CONV_FILTERS, 4, name='conv4')(net['embeddingCNN'])
-    
+
     net['conv5'] = Conv1D(NUM_CONV_FILTERS, 5, name='conv5')(net['embeddingCNN'])
-    
+
     net['conv6'] = Conv1D(NUM_CONV_FILTERS, 6, name='conv6')(net['embeddingCNN'])
-    
+
     # Global max pooling
-    
+
     net['pool2'] = GlobalMaxPool1D(name='pool2')(net['conv2'])
-    
+
     net['pool3'] = GlobalMaxPool1D(name='pool3')(net['conv3'])
-    
+
     net['pool4'] = GlobalMaxPool1D(name='pool4')(net['conv4'])
-    
+
     net['pool5'] = GlobalMaxPool1D(name='pool5')(net['conv5'])
-    
+
     net['pool6'] = GlobalMaxPool1D(name='pool6')(net['conv6'])
-    
+
     net['concatcnn'] = concatenate([net['pool2'], net['pool3'], net['pool4'
                                    ], net['pool5'], net['pool6']], axis=1,
                                    name='concatcnn')
-    
+
     net['dropoutcnnmid'] = Dropout(0.5, name='dropoutcnnmid')(net['concatcnn'])
-    
+
     net['densecnn'] = Dense(NUM_CONV_FILTERS, activation='relu', name='densecnn')(net['dropoutcnnmid'])
-    
+
     net['dropoutcnn'] = Dropout(0.5, name='dropoutcnn')(net['densecnn'])
-    
+
     ########################
     #         LSTM         #
     ########################
-    
+
     net['embeddingLSTM'] = Embedding(output_dim=max_features,
                                      input_dim=256,
                                      input_length=MAX_STRING_LENGTH,
                                      name='embeddingLSTM')(net['input'])
-    
+
     net['lstm'] = LSTM(256, name='lstm')(net['embeddingLSTM'])
-    
+
     net['dropoutlstm'] = Dropout(0.5, name='dropoutlstm')(net['lstm'])
-    
+
     ########################
     #    Combine - ANN     #
     ########################
-    
+
     net['concat'] = concatenate([net['dropoutcnn'], net['dropoutlstm']], axis=-1, name='concat')
-    
+
     net['dropoutsemifinal'] = Dropout(0.5, name='dropoutsemifinal')(net['concat'])
-    
+
     net['extradense'] = Dense(100, activation='relu', name='extradense')(net['dropoutsemifinal'])
-    
+
     net['dropoutfinal'] = Dropout(0.5, name='dropoutfinal')(net['extradense'])
-    
+
     net['output'] = Dense(1, activation='sigmoid', name='output')(net['dropoutfinal'])
-    
+
     model = Model(net['input'], net['output'])
     return model
 
@@ -136,10 +137,17 @@ def train_eval_test(model, start_fold, end_fold):
         best_model = load_model('bestmodel.hdf5')
         metrics = best_model.evaluate(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
         metrics["f1"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
-        pd.Series(metrics, index=metrics.keys(), name= str(fold)).to_csv(path + "metrics.csv", mode='a')
+        try:
+            df = pd.read_csv(out_path + "metrics.csv")
+            df[str(fold)] = pd.Series(metrics, index=metrics.keys(), name=str(fold))
+            df.to_csv(out_path + "metrics.csv")
+        except:
+            pd.Series(metrics, index=metrics.keys(), name= str(fold)).to_csv(out_path + "metrics.csv")
         predicted = best_model.predict(x=x_test, batch_size=batch_size)
-
-
+        metrics1 = classification_report(y_test, predicted, output_dict=True, target_names=['alexa', 'dga'])
+        pd.Series(metrics1, index=metrics1.keys(), name= str(fold)).to_csv(out_path + "metrics1.csv")
+        np.savetxt(out_path + 'confusion_matrix' + str(fold) + '.csv', confusion_matrix(y_test, predicted), delimiter=',',  fmt='%i')
+        print(accuracy_score(y_test, predicted))
 
 def use_tpu():
     print("Tensorflow version " + tf.__version__)
