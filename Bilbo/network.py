@@ -1,5 +1,6 @@
 __author__ = 'Daniele Marzetti'
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, GlobalMaxPool1D, concatenate, Dropout, Dense, Embedding, LSTM, Input
 from tensorflow.keras.losses import BinaryCrossentropy
@@ -8,6 +9,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.metrics import BinaryAccuracy, AUC, Precision, Recall
 from tensorflow.keras.models import load_model
 import matplotlib.pyplot as plt
+import pandas as pd
 
 max_epoch = 10
 batch_size = 512
@@ -94,37 +96,47 @@ def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     model = Model(net['input'], net['output'])
     return model
 
-def train_eval_test(model, dataset, label):
+def train_eval_test(model, dataset, label, start_fold, end_fold):
     earlystop = EarlyStopping(monitor='loss', patience=3)
     best_save = ModelCheckpoint('bestmodel.hdf5', save_best_only=True, save_weights_only= False, monitor='val_loss', mode='min')
     model.compile(optimizer='ADAM', loss= BinaryCrossentropy(), metrics=[BinaryAccuracy(), AUC(), Precision(), Recall()])
     model.summary()
-    history = model.fit(x=dataset, y=label.to_numpy(), batch_size=batch_size, epochs=max_epoch, callbacks=[earlystop, best_save], validation_split=0.2)
 
-    fig1 = plt.figure(1)
-    plt.title('Loss')
-    plt.plot(history.history["val_loss"], 'r', label='Validation Loss')
-    plt.plot(history.history["loss"], 'b', label='Training Loss')
-    plt.legend(loc="upper right")
-    #x = list(range(len(loss_train)+1, 1))
-    plt.grid(True)
-    fig1.savefig(path + "bilbo_loss.png")
-    plt.show()
-    plt.close(fig1)
-    
-    fig2 = plt.figure(2)
-    plt.title('Accuracy')
-    plt.plot(history.history["val_binary_accuracy"], 'r', label='Validation Accuracy')
-    plt.plot(history.history["binary_accuracy"], 'b', label='Training Accuracy')
-    plt.legend(loc="lower right")
-    plt.grid(True)
-    fig2.savefig(path + "bilbo_accuracy.png")
-    plt.show()
-    plt.close(fig2)
-    
-    best_model = load_model('bestmodel.hdf5')
-    best_model.evaluate(x=dataset, y=label.to_numpy(), batch_size=batch_size)
-    predicted = best_model.predict(x=dataset, batch_size=batch_size)
+    for fold in range(start_fold, end_fold):
+        #Get fold by csv
+        x_train = np.genfromtxt(path + "x_train" + str(fold) + ".csv", delimiter=',')
+        x_test = np.genfromtxt(path + "x_test" + str(fold) + ".csv", delimiter=',')
+        y_train = np.genfromtxt(path + "y_train" + str(fold) + ".csv", delimiter=',')
+        y_test = np.genfromtxt(path + "y_test" + str(fold) + ".csv", delimiter=',')
+
+        history = model.fit(x=x_train, y=y_train, batch_size=batch_size, epochs=max_epoch, callbacks=[earlystop, best_save], validation_split=0.1)
+
+        fig1 = plt.figure(1)
+        plt.title('Loss')
+        plt.plot(history.history["val_loss"], 'r', label='Validation Loss')
+        plt.plot(history.history["loss"], 'b', label='Training Loss')
+        plt.legend(loc="upper right")
+        #x = list(range(len(loss_train)+1, 1))
+        plt.grid(True)
+        fig1.savefig(path + "bilbo_loss" + str(fold) + ".png")
+        plt.show()
+        plt.close(fig1)
+
+        fig2 = plt.figure(2)
+        plt.title('Accuracy')
+        plt.plot(history.history["val_binary_accuracy"], 'r', label='Validation Accuracy')
+        plt.plot(history.history["binary_accuracy"], 'b', label='Training Accuracy')
+        plt.legend(loc="lower right")
+        plt.grid(True)
+        fig2.savefig(path + "bilbo_accuracy" + str(fold) + ".png")
+        plt.show()
+        plt.close(fig2)
+
+        best_model = load_model('bestmodel.hdf5')
+        metrics = best_model.evaluete(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
+        metrics["f1"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
+        pd.Series(metrics, index=metrics.keys(), name= str(fold)).to_csv(path + "metrics.csv", mode='a')
+        predicted = best_model.predict(x=x_test, batch_size=batch_size)
 
 
 
