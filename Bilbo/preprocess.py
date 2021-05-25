@@ -1,17 +1,19 @@
 __author__ = 'Daniele Marzetti'
 import pandas as pd
-import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from sklearn.model_selection import StratifiedKFold
+import numpy as np
+
+path = "/content/drive/MyDrive/Cyber Security"
+nfolds = 10
 
 def create_set_label():
-  dataset = pd.read_csv("/content/drive/MyDrive/Cyber Security/dga_domains_full.csv", encoding= "utf-8", names=['label', 'family', 'domain'])
-  dataset.drop(columns='family', inplace=True)
-  label = pd.Series(dataset['label'] == 'dga', dtype=int)
-  dataset.drop(columns='label', inplace=True)
-  dataset = pd.Series(dataset['domain'])
-  dataset.to_csv("/content/drive/MyDrive/Cyber Security/dataset.csv", header=False, index=False)
-  label.to_csv("/content/drive/MyDrive/Cyber Security/label.csv", header=False, index=False)
-  return dataset, label, dataset.map(len).max()
+  dataset = pd.read_csv(path + "/dga_domains_full.csv", encoding= "utf-8", names=['label', 'family', 'domain'])
+  y = pd.Series(dataset['label'] == 'dga', dtype=int)
+  x = pd.Series(dataset['domain'])
+  x.to_csv(path + "x.csv", header=False, index=False)
+  y.to_csv(path + "y.csv", header=False, index=False)
+  return x, y, x.map(len).max()
 
 
 def conversion(x, mapping):
@@ -42,4 +44,19 @@ def to_numeric(dataset, MAX_STRING_LENGTH):
 
   dataset_preprocess = dataset.apply(conversion, mapping = charachetrs_map)
   dataset_final = pad_sequences(dataset_preprocess.to_numpy(), maxlen=MAX_STRING_LENGTH, padding="pre", value=0)
-  return  dataset_final, MAX_INDEX + 1
+  return  dataset_final, MAX_INDEX
+
+def kfold(x,y):
+  # Divide the dataset into training + holdout and testing with folds
+  sss = StratifiedKFold(n_splits=nfolds, random_state=0)
+
+  fold = 0
+  for train, test in sss.split(x, y):
+    print("Writing fold " + str(fold + 1) + " to csv...")
+    fold += 1
+    x_train, x_test, y_train, y_test = x[train], x[test], y[train], y[test]
+    np.savetxt(path +"/x_train" + str(fold), x_train)
+    np.savetxt(path + "/x_test" + str(fold), x_test)
+    np.savetxt(path + "/y_train" + str(fold), y_train)
+    np.savetxt(path + "/y_test" + str(fold), y_test)
+  print("Files created")
