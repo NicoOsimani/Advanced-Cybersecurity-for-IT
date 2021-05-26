@@ -1,7 +1,6 @@
 __author__ = 'Daniele Marzetti'
 
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, GlobalMaxPool1D, concatenate, Dropout, Dense, Embedding, LSTM, Input
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras import Model
@@ -10,7 +9,7 @@ from tensorflow.keras.metrics import BinaryAccuracy, AUC, Precision, Recall
 from tensorflow.keras.models import load_model
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import classification_report, confusion_matrix
 
 max_epoch = 10
 batch_size = 512
@@ -98,18 +97,22 @@ def create_model(MAX_STRING_LENGTH, MAX_INDEX):
     model = Model(net['input'], net['output'])
     return model
 
-def train_eval_test(model, start_fold, end_fold):
-    earlystop = EarlyStopping(monitor='loss', patience=3)
-    best_save = ModelCheckpoint('bestmodel.hdf5', save_best_only=True, save_weights_only= False, monitor='val_loss', mode='min')
-    model.compile(optimizer='ADAM', loss= BinaryCrossentropy(), metrics=[BinaryAccuracy(), AUC(), Precision(), Recall()])
-    model.summary()
-
+def train_eval_test(MAX_STRING_LENGTH, MAX_INDEX, start_fold, end_fold):
     for fold in range(start_fold, end_fold):
         #Get fold by csv
         x_train = np.genfromtxt(path + "x_train" + str(fold) + ".csv", delimiter=',')
         x_test = np.genfromtxt(path + "x_test" + str(fold) + ".csv", delimiter=',')
         y_train = np.genfromtxt(path + "y_train" + str(fold) + ".csv", delimiter=',')
         y_test = np.genfromtxt(path + "y_test" + str(fold) + ".csv", delimiter=',')
+
+        model = None
+        model = create_model(MAX_STRING_LENGTH, MAX_INDEX)
+        earlystop = EarlyStopping(monitor='loss', patience=3)
+        best_save = ModelCheckpoint('bestmodel.hdf5', save_best_only=True, save_weights_only=False, monitor='val_loss',
+                                    mode='min')
+        model.compile(optimizer='ADAM', loss=BinaryCrossentropy(),
+                      metrics=[BinaryAccuracy(), AUC(), Precision(), Recall()])
+        model.summary()
 
         history = model.fit(x=x_train, y=y_train, batch_size=batch_size, epochs=max_epoch, callbacks=[earlystop, best_save], validation_split=0.1)
 
@@ -152,17 +155,3 @@ def train_eval_test(model, start_fold, end_fold):
         except:
             pd.DataFrame(metrics1).to_csv(out_path + "metrics1.csv")
         np.savetxt(out_path + 'confusion_matrix' + str(fold) + '.csv', confusion_matrix(y_test, predicted), delimiter=',',  fmt='%i')
-        print(accuracy_score(y_test, predicted))
-
-def use_tpu():
-    print("Tensorflow version " + tf.__version__)
-
-    try:
-        tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
-        print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
-    except ValueError:
-        raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
-
-    tf.config.experimental_connect_to_cluster(tpu)
-    tf.tpu.experimental.initialize_tpu_system(tpu)
-    tpu_strategy = tf.distribute.TPUStrategy(tpu)
