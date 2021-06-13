@@ -3,7 +3,7 @@ library(caret)
 library(randomForest)
 library(pROC)
 
-sink(file = "drive/MyDrive/Cyber\ Security/grams_data/output/output-0.txt") # Crea un file con i print
+sink(file = "drive/MyDrive/Cyber\ Security/grams_data/output/output-completo.txt") # Crea un file con i print
 print("START")
 print(Sys.time())
 
