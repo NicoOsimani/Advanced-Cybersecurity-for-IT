@@ -33,7 +33,7 @@ min_delta = 0.0
 
 
 def get_data(fold):
-	"""Read data from file (Traning, testing and validation) to process"""
+	"""Read data from file (train, test) to process"""
 	X_train = []
 	X_test = []
 	y_train = []
