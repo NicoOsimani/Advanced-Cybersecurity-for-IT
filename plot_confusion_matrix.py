@@ -7,9 +7,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
-title="LSTM-MI Normalizzata"
+title="LSTM-MI"
 normalize = True
-cm = np.array([[32973.1, 766.7], [836.5, 32913.5]])
+cm = np.array([[32973.1, 766.7], [836.5, 32913.5]]) #[[TN, FP], [FN, TP]]
 
 def plot_confusion_matrix(cm, classes, normalize=normalize,
                           title=title,
