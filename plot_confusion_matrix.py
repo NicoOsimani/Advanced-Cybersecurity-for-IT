@@ -9,8 +9,8 @@ test_name = "dga_domains"
 class_names = ["legit", "dga"]
 title="BILBO"
 normalize = True
-cm = np.array([[32854.4, 885.4], [1115.9, 32634.1]])
-#TN, FP, FN, TP
+cm = np.array([[32973.1, 766.7], [836.5, 32913.5]]) #[[TN, FP], [FN, TP]]
+
 def plot_confusion_matrix(cm, classes, normalize=normalize,
                           title=title,
                           cmap=plt.cm.Blues):
@@ -29,7 +29,7 @@ def plot_confusion_matrix(cm, classes, normalize=normalize,
     print("")
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, round(cm[i, j],2),
+        plt.text(j, i, round(cm[i, j],5),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
     plt.tight_layout()
