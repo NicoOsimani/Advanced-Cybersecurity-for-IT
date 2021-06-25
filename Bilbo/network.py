@@ -139,7 +139,6 @@ def train_eval_test(MAX_STRING_LENGTH, MAX_INDEX, start_fold, end_fold):
 
         best_model = load_model('bestmodel.hdf5')
         metrics = best_model.evaluate(x= x_test, y= y_test, batch_size= batch_size, return_dict = True)
-        #metrics["f1-score"] = 2 * (metrics["precision"] * metrics["recall"]) / (metrics["precision"] + metrics["recall"])
         try:
             df = pd.read_csv(out_path + "metrics.csv", index_col=[0])
             df = df.append(pd.Series(metrics, name=str(fold)))

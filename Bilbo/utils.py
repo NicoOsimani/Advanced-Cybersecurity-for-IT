@@ -1,7 +1,7 @@
 __author__ = 'Daniele Marzetti'
 import tensorflow as tf
-import numpy as np
 import pandas as pd
+
 
 def use_tpu():
     print("Tensorflow version " + tf.__version__)
@@ -16,4 +16,3 @@ def use_tpu():
     tf.tpu.experimental.initialize_tpu_system(tpu)
     tpu_strategy = tf.distribute.TPUStrategy(tpu)
 
-#def metrics_avg(metrics, metrics1, confusion_matrix):

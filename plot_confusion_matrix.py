@@ -7,10 +7,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
-title="LSTM-MI"
+title="BILBO"
 normalize = True
-cm = np.array([[121278, 25548], [13681, 109411]])
-
+cm = np.array([[32854.4, 885.4], [1115.9, 32634.1]])
+#TN, FP, FN, TP
 def plot_confusion_matrix(cm, classes, normalize=normalize,
                           title=title,
                           cmap=plt.cm.Blues):
@@ -39,7 +39,7 @@ def plot_confusion_matrix(cm, classes, normalize=normalize,
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
-    fig.savefig(out_path + "/" + title + "_" + test_name + "_cm_averaged.png")
+    fig.savefig(title + "_" + test_name + "_cm_averaged.png")
     plt.show()
     plt.close()
 
