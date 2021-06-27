@@ -9,7 +9,7 @@ test_name = "dga_domains"
 class_names = ["legit", "dga"]
 title="Bilbo"
 normalize = True
-cm = np.array([[32973.1, 766.7], [836.5, 32913.5]]) #[[TN, FP], [FN, TP]]
+cm = np.array([[32854.4, 885.4], [1115.9, 32634.1]]) #[[TN, FP], [FN, TP]]
 
 def plot_confusion_matrix(cm, classes, normalize=normalize,
                           title=title,
