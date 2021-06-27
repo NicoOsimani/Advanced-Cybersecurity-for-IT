@@ -7,7 +7,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 out_path = "drive/MyDrive" #drive/MyDrive
 test_name = "dga_domains"
 class_names = ["legit", "dga"]
-title="BILBO"
+title="Bilbo"
 normalize = True
 cm = np.array([[32973.1, 766.7], [836.5, 32913.5]]) #[[TN, FP], [FN, TP]]
 
@@ -39,7 +39,7 @@ def plot_confusion_matrix(cm, classes, normalize=normalize,
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im, cax=cax)
-    fig.savefig(title + "_" + test_name + "_cm_averaged.png")
+    fig.savefig(out_path + "/" + title + "_" + test_name + "_cm_averaged.png")
     plt.show()
     plt.close()
 
