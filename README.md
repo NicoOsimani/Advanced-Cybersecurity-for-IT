@@ -6,6 +6,8 @@ Gli algoritmi di generazione del dominio (DGA) sono spesso utilizzati dal malwar
 Il progetto si basa sul testare diversi algoritmi di machine learning per la rilevazione di nomi di domini malevoli, adattandoli al dataset assegnatoci ed effettuando poi una classificazione di tipo binaria, andando così a confrontare i vari risultati ottenuti (metriche) dei diversi algoritmi.
 In particolar modo si andranno a testare i seguenti algoritmi: LSTM, Masked N-Grams, Bilbo ed ELMo.
 
+Nel repository sono presenti i file relativi alle quattro architetture (nelle rispettive cartelle), i risultati ottenuti (nella cartella Results), e degli script di utilità (plot_confusion_matrix, preprocess_and_fold_division, utils for compare).
+
 - Dianel Ago
 - Feng Xiao Li Savio
 - Daniele Marzetti
